@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "mpc/mpc.h"
+
 /* for Windows */
 #ifdef _WIN32
 #include <string.h>
@@ -26,8 +28,6 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
-#include "mpc/mpc.h"
-
 
 int main(int argc, char** argv) {
   mpc_parser_t* Number   = mpc_new("number");
@@ -39,21 +39,36 @@ int main(int argc, char** argv) {
     MPCA_LANG_DEFAULT,
     "                                                     \
       number   : /-?[0-9]+/ ;                             \
-      operator : '+' | '-' | '*' | '/' ;                  \
+      operator :  '+'  |  '-'  |  '*'  | '/' | '%'        \
+               | \"add\" | \"sub\" | \"mul\" | \"div\" ;  \
       expr     : <number> | '(' <operator> <expr>+ ')' ;  \
       yalang   : /^/ <operator> <expr>+ /$/ ;             \
     ",
     Number, Operator, Expr, Yalang
   );
+  mpc_result_t r;
 
   puts("Yalang v0.0.1");
   puts("Press Ctrl+C to Exit\n");
 
   while (1) {
     char* input = readline("yalang> ");
+    if (input[0] == '\0') {
+      free(input);
+      continue;
+    }
+
     add_history(input);
 
-    printf("Okay, let it be %s\n", input);
+    if (mpc_parse("<stdin>", input, Yalang, &r)) {
+      /* On Success Print the AST */
+      mpc_ast_print(r.output);
+      mpc_ast_delete(r.output);
+    } else {
+      /* Otherwise Print the Error */
+      mpc_err_print(r.error);
+      mpc_err_delete(r.error);
+    }
     free(input);
   }
 
