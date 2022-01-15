@@ -1,29 +1,62 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#define true 1
+/* for Windows */
+#ifdef _WIN32
+#include <string.h>
 
+static char buffer[2048];
 
-/* Declare a buffer for user input of size 2048 */
-static char input[2048];
+/* Fake readline function */
+char* readline(char* prompt) {
+  fputs(prompt, stdout);
+  fgets(buffer, 2048, stdin);
+  char* cpy = malloc(strlen(buffer)+1);
+  strcpy(cpy, buffer);
+  cpy[strlen(cpy)-1] = '\0';
+  return cpy;
+}
+
+/* Fake add_history function */
+void add_history(char* unused) {}
+
+/* Otherwise include the editline headers */
+#else
+#include <editline/readline.h>
+#include <editline/history.h>
+#endif
+
+#include "mpc/mpc.h"
+
 
 int main(int argc, char** argv) {
+  mpc_parser_t* Number   = mpc_new("number");
+  mpc_parser_t* Operator = mpc_new("operator");
+  mpc_parser_t* Expr     = mpc_new("expr");
+  mpc_parser_t* Yalang   = mpc_new("yalang");
 
-  /* Print Version and Exit Information */
+  mpca_lang(
+    MPCA_LANG_DEFAULT,
+    "                                                     \
+      number   : /-?[0-9]+/ ;                             \
+      operator : '+' | '-' | '*' | '/' ;                  \
+      expr     : <number> | '(' <operator> <expr>+ ')' ;  \
+      yalang   : /^/ <operator> <expr>+ /$/ ;             \
+    ",
+    Number, Operator, Expr, Yalang
+  );
+
   puts("Yalang v0.0.1");
   puts("Press Ctrl+C to Exit\n");
 
-  /* In a never ending loop */
-  while (true) {
+  while (1) {
+    char* input = readline("yalang> ");
+    add_history(input);
 
-    /* Output our prompt */
-    fputs("yalang> ", stdout);
-
-    /* Read a line of user input of maximum size 2048 */
-    fgets(input, 2048, stdin);
-
-    /* Echo input back to user */
-    printf("No you're a %s", input);
+    printf("Okay, let it be %s\n", input);
+    free(input);
   }
 
+  mpc_cleanup(4, Number, Operator, Expr, Yalang);
   return 0;
 }
