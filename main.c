@@ -31,6 +31,8 @@ long eval_op(long x, char* op, long y) {
   if (strcmp(op, "-") == 0) { return x - y; }
   if (strcmp(op, "*") == 0) { return x * y; }
   if (strcmp(op, "/") == 0) { return x / y; }
+  if (strcmp(op, "%") == 0) { return x % y; }
+  if (strcmp(op, "^") == 0) { return x ^ y; }
   return 0;
 }
 
@@ -39,7 +41,7 @@ long eval(mpc_ast_t* t) {
   if (strstr(t->tag, "number")) {
     return atoi(t->contents);
   }
-  
+
   /* The operator is always second child. */
   char* op = t->children[1]->contents;
   
@@ -65,13 +67,11 @@ int main(int argc, char** argv) {
 
   mpca_lang(
     MPCA_LANG_DEFAULT,
-    "                                                        \
-      number   : /-?[0-9]+(.[0-9]+)?/ ;                      \
-      operator : '+' | '-' | '*' | '/' | '%' ;               \
-      expr     : <number>                                    \
-               | <number> <operator> <number>                \
-               | '(' <number> (<operator> <number>)* ')' ;   \
-      yalang   : /^/ <expr> (<operator> <expr>)* /$/ ;       \
+    "                                                         \
+      number   : /-?[0-9]+/ ;                                 \
+      operator : '+' | '-' | '*' | '/' | '%' | '^' ;          \
+      expr     : <number> | '(' <operator> <expr>+ ')' ;      \
+      yalang   : /^/ <operator> <expr>+ /$/ ;                 \
     ",
     Number, Operator, Expr, Yalang
   );
@@ -79,14 +79,16 @@ int main(int argc, char** argv) {
   puts("Yalang v0.0.1");
   puts("Press Ctrl+C to Exit\n");
 
-while (1) {
+  while (1) {
     char* input = readline(">>> ");
     add_history(input);
 
     mpc_result_t r;
+
     if (mpc_parse("<stdin>", input, Yalang, &r)) {
       long result = eval(r.output);
       printf("%li\n", result);
+      // mpc_ast_print(r.output);
       mpc_ast_delete(r.output);
     } else {    
       mpc_err_print(r.error);
