@@ -1,5 +1,5 @@
 #include "mpc/mpc.h"
-#include "src/eval.h"
+#include "src/lval.h"
 
 /* for Windows */
 #ifdef _WIN32
@@ -29,7 +29,8 @@ void add_history(char* unused) {}
 
 int main(int argc, char** argv) {
   mpc_parser_t* Number   = mpc_new("number");
-  mpc_parser_t* Operator = mpc_new("operator");
+  mpc_parser_t* Symbol   = mpc_new("symbol");
+  mpc_parser_t* Sexpr    = mpc_new("sexpr");
   mpc_parser_t* Expr     = mpc_new("expr");
   mpc_parser_t* Yalang   = mpc_new("yalang");
 
@@ -37,11 +38,12 @@ int main(int argc, char** argv) {
     MPCA_LANG_DEFAULT,
     "                                                         \
       number   : /-?[0-9]+/ ;                                 \
-      operator : '+' | '-' | '*' | '/' | '%' | '^' ;          \
-      expr     : <number> | '(' <operator> <expr>+ ')' ;      \
-      yalang   : /^/ <operator> <expr>+ /$/ ;                 \
+      symbol   : '+' | '-' | '*' | '/' | '%' | '^' ;          \
+      sexpr    : '(' <expr>* ')' ;                            \
+      expr     : <number> | <symbol> | <sexpr> ;              \
+      yalang   : /^/ <expr>* /$/ ;                            \
     ",
-    Number, Operator, Expr, Yalang
+    Number, Symbol, Sexpr, Expr, Yalang
   );
 
   puts("Yalang v0.0.1");
@@ -54,8 +56,9 @@ int main(int argc, char** argv) {
     mpc_result_t r;
 
     if (mpc_parse("<stdin>", input, Yalang, &r)) {
-      lval result = eval(r.output);
-      lval_println(result);
+      lval* x = lval_eval(lval_read(r.output));
+      lval_println(x);
+      lval_del(x);
     } else {    
       mpc_err_print(r.error);
       mpc_err_delete(r.error);
@@ -64,6 +67,6 @@ int main(int argc, char** argv) {
     free(input);
   }
   
-  mpc_cleanup(4, Number, Operator, Expr, Yalang);
+  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Yalang);
   return 0;
 }
