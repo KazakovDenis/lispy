@@ -1,5 +1,5 @@
-# Yalang
-Yet antother language.
+# Lispy
+Yet another Lisp.
 
 # Devemopment
 ## Installation

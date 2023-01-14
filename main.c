@@ -1,5 +1,6 @@
 #include "mpc/mpc.h"
 #include "src/lval.h"
+#include "src/print.h"
 
 /* for Windows */
 #ifdef _WIN32
@@ -31,8 +32,9 @@ int main(int argc, char** argv) {
   mpc_parser_t* Number   = mpc_new("number");
   mpc_parser_t* Symbol   = mpc_new("symbol");
   mpc_parser_t* Sexpr    = mpc_new("sexpr");
+  mpc_parser_t* Qexpr    = mpc_new("qexpr");
   mpc_parser_t* Expr     = mpc_new("expr");
-  mpc_parser_t* Yalang   = mpc_new("yalang");
+  mpc_parser_t* Lispy    = mpc_new("lispy");
 
   mpca_lang(
     MPCA_LANG_DEFAULT,
@@ -40,13 +42,14 @@ int main(int argc, char** argv) {
       number   : /-?[0-9]+/ ;                                 \
       symbol   : '+' | '-' | '*' | '/' | '%' | '^' ;          \
       sexpr    : '(' <expr>* ')' ;                            \
-      expr     : <number> | <symbol> | <sexpr> ;              \
-      yalang   : /^/ <expr>* /$/ ;                            \
+      qexpr    : '{' <expr>* '}' ;                            \
+      expr     : <number> | <symbol> | <sexpr> | <qexpr> ;    \
+      lispy    : /^/ <expr>* /$/ ;                            \
     ",
-    Number, Symbol, Sexpr, Expr, Yalang
+    Number, Symbol, Sexpr, Qexpr, Expr, Lispy
   );
 
-  puts("Yalang v0.0.1");
+  puts("Lispy v0.0.1");
   puts("Press Ctrl+C to Exit\n");
 
   while (1) {
@@ -55,7 +58,7 @@ int main(int argc, char** argv) {
 
     mpc_result_t r;
 
-    if (mpc_parse("<stdin>", input, Yalang, &r)) {
+    if (mpc_parse("<stdin>", input, Lispy, &r)) {
       lval* x = lval_eval(lval_read(r.output));
       lval_println(x);
       lval_del(x);
@@ -67,6 +70,6 @@ int main(int argc, char** argv) {
     free(input);
   }
   
-  mpc_cleanup(5, Number, Symbol, Sexpr, Expr, Yalang);
+  mpc_cleanup(6, Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
   return 0;
 }
