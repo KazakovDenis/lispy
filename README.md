@@ -3,7 +3,7 @@ Yet another Lisp.
 
 # Devemopment
 ## Installation
-- `git clone --recurse-submodules https://github.com/KazakovDenis/yalang.git`
+- `git clone --recurse-submodules https://github.com/KazakovDenis/lispy.git`
 - `sudo apt install make`
 - `make install`
   

@@ -1,4 +1,5 @@
 #include "mpc/mpc.h"
+
 #include "src/lval.h"
 #include "src/print.h"
 
@@ -40,7 +41,9 @@ int main(int argc, char** argv) {
     MPCA_LANG_DEFAULT,
     "                                                         \
       number   : /-?[0-9]+/ ;                                 \
-      symbol   : '+' | '-' | '*' | '/' | '%' | '^' ;          \
+      symbol   : '+' | '-' | '*' | '/' | '%' | '^'            \
+               |  \"list\" | \"head\" | \"tail\" | \"join\"   \
+               | \"eval\" ; \
       sexpr    : '(' <expr>* ')' ;                            \
       qexpr    : '{' <expr>* '}' ;                            \
       expr     : <number> | <symbol> | <sexpr> | <qexpr> ;    \

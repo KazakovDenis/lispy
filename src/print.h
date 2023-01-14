@@ -1,10 +1,9 @@
+#ifndef LISPY_PRINT_H
 #define LISPY_PRINT_H
 
 #include <stdio.h>
 
-#ifndef LISPY_STRUCT_H
 #include "struct.h"
-#endif
 
 
 // Resolve dependency 
@@ -37,3 +36,5 @@ void lval_print(lval* v) {
 
 
 void lval_println(lval* v) { lval_print(v); putchar('\n'); }
+
+#endif
