@@ -403,6 +403,7 @@ lval* builtin_pow(lenv* e, lval* a) {
   return builtin_op(e, a, "^");
 }
 
+
 lval* builtin_eval(lenv* e, lval* a) {
   LASSERT(a, a->count == 1, "Function 'eval' passed too many arguments!");
   LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'eval' passed incorrect type!");
@@ -427,6 +428,30 @@ lval* builtin_join(lenv* e, lval* a) {
 
   lval_del(a);
   return x;
+}
+
+
+lval* builtin_def(lenv* e, lval* a) {
+  LASSERT(a, a->cell[0]->type == LVAL_QEXPR, "Function 'def' passed incorrect type!");
+
+  /* First argument is symbol list */
+  lval* syms = a->cell[0];
+
+  /* Ensure all elements of first list are symbols */
+  for (int i = 0; i < syms->count; i++) {
+    LASSERT(a, syms->cell[i]->type == LVAL_SYM, "Function 'def' cannot define non-symbol");
+  }
+
+  /* Check correct number of symbols and values */
+  LASSERT(a, syms->count == a->count-1, "Function 'def' cannot define incorrect " "number of values to symbols");
+
+  /* Assign copies of values to symbols */
+  for (int i = 0; i < syms->count; i++) {
+    lenv_put(e, syms->cell[i], a->cell[i+1]);
+  }
+
+  lval_del(a);
+  return lval_sexpr();
 }
 
 
@@ -466,6 +491,9 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "/", builtin_div);
   lenv_add_builtin(e, "%", builtin_rem);
   lenv_add_builtin(e, "^", builtin_pow);
+  
+  /* Variable Functions */
+  lenv_add_builtin(e, "def",  builtin_def);
 }
 
 #endif
