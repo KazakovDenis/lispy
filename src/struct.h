@@ -16,15 +16,25 @@ typedef lval*(*lbuiltin)(lenv*, lval*);
 
 struct lval {
   int type;
+
+  /* Basic */
   long num;
   char* err;
   char* sym;
-  lbuiltin fun;
+
+  /* Function */
+  lbuiltin builtin;
+  lenv* env;
+  lval* formals;
+  lval* body;
+
+  /* Expression */
   int count;
   lval** cell;
 };
 
 struct lenv {
+  lenv* par;
   int count;
   char** syms;
   lval** vals;
