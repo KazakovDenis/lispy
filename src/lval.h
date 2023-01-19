@@ -636,7 +636,7 @@ lval* builtin_var(lenv* e, lval* a, char* func) {
   LASSERT(
     a, 
     (syms->count == a->count-1),
-    "Function '%s' passed too many arguments for symbols. " "Got %i, Expected %i.", 
+    "Function '%s' passed too many arguments for symbols. Got %i, Expected %i.", 
     func, 
     syms->count, 
     a->count-1
@@ -714,7 +714,20 @@ void lenv_add_builtin(lenv* e, char* name, lbuiltin func) {
 }
 
 
+void lenv_add_builtin_exit(lenv* e) {
+  lval* k = lval_sym("exit");
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_EXIT;
+  lenv_put(e, k, v);
+  lval_del(k); 
+  lval_del(v);
+}
+
+
 void lenv_add_builtins(lenv* e) {
+  /* System functions */
+  lenv_add_builtin_exit(e);
+
   /* List Functions */
   lenv_add_builtin(e, "list", builtin_list);
   lenv_add_builtin(e, "head", builtin_head);

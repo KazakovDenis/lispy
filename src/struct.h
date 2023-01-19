@@ -1,7 +1,7 @@
 #ifndef LISPY_STRUCT_H
 #define LISPY_STRUCT_H
 
-enum ValTypes { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
+enum ValTypes { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR, LVAL_EXIT };
 
 struct lval;
 struct lenv;

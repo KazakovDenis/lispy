@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
       number   : /-?[0-9]+/ ;                                 \
       symbol   : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&^%]+/           \
                |  \"list\" | \"head\" | \"tail\" | \"join\"   \
-               | \"eval\" ; \
+               | \"eval\" | \"exit\" ; \
       sexpr    : '(' <expr>* ')' ;                            \
       qexpr    : '{' <expr>* '}' ;                            \
       expr     : <number> | <symbol> | <sexpr> | <qexpr> ;    \
@@ -58,14 +58,17 @@ int main(int argc, char** argv) {
   lenv* e = lenv_new();
   lenv_add_builtins(e);
 
+  mpc_result_t r;
+  int type;
+
   while (1) {
     char* input = readline(">>> ");
     add_history(input);
 
-    mpc_result_t r;
-
     if (mpc_parse("<stdin>", input, Lispy, &r)) {
       lval* x = lval_eval(e, lval_read(r.output));
+      type = x->type;
+
       lval_println(x);
       lval_del(x);
 
@@ -76,6 +79,7 @@ int main(int argc, char** argv) {
     }
 
     free(input);
+    if (type == LVAL_EXIT) { break; }
   }
   
   lenv_del(e);
