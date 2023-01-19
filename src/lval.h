@@ -444,6 +444,10 @@ void lenv_put(lenv* e, lval* k, lval* v) {
     /* If variable is found delete item at that position */
     /* And replace with variable supplied by user */
     if (strcmp(e->syms[i], k->sym) == 0) {
+      if (e->vals[i]->builtin) {
+        printf("Warning: builtin \"%s\" reassigned.\n", k->sym);
+      }
+
       lval_del(e->vals[i]);
       e->vals[i] = lval_copy(v);
       return;
