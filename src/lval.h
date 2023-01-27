@@ -1,9 +1,9 @@
 #ifndef LISPY_LVAL_H
 #define LISPY_LVAL_H
 
-#include "../mpc/mpc.h"
-
+#include "parser.h"
 #include "struct.h"
+
 
 #define LASSERT(args, cond, fmt, ...) \
   if (!(cond)) { lval* err = lval_err(fmt, ##__VA_ARGS__); lval_del(args); return err; }
@@ -815,6 +815,16 @@ void lenv_add_builtin_exit(lenv* e) {
 }
 
 
+void add_lisp_func(lenv* e, char* fun) {
+  mpc_result_t r;
+  mpc_parse("<stdin>", fun, Lispy, &r);
+
+  lval* v = lval_eval(e, lval_read(r.output));
+  lval_del(v);
+  mpc_ast_delete(r.output);   
+}
+
+
 void lenv_add_builtins(lenv* e) {
   /* System functions */
   lenv_add_builtin_exit(e);
@@ -847,6 +857,11 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, ">=", builtin_ge);
   lenv_add_builtin(e, "<", builtin_lt);
   lenv_add_builtin(e, "<=", builtin_le);
+
+  /* Lisp defined functions */
+  add_lisp_func(e, "def {func} (\\ {args body} {def (head args) (\\ (tail args) body)})");
+  add_lisp_func(e, "(func {len l} { if (== l {}) {0} {+ 1 (len (tail l))} })");
+  add_lisp_func(e, "(func {reverse l} { if (== l {}) {{}} {join (reverse (tail l)) (head l)} })");
 }
 
 #endif

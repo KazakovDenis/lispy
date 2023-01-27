@@ -1,6 +1,5 @@
-#include "mpc/mpc.h"
-
 #include "src/lval.h"
+#include "src/parser.h"
 #include "src/print.h"
 
 /* for Windows */
@@ -30,27 +29,7 @@ void add_history(char* unused) {}
 
 
 int main(int argc, char** argv) {
-  mpc_parser_t* Number   = mpc_new("number");
-  mpc_parser_t* Symbol   = mpc_new("symbol");
-  mpc_parser_t* Sexpr    = mpc_new("sexpr");
-  mpc_parser_t* Qexpr    = mpc_new("qexpr");
-  mpc_parser_t* Expr     = mpc_new("expr");
-  mpc_parser_t* Lispy    = mpc_new("lispy");
-
-  mpca_lang(
-    MPCA_LANG_DEFAULT,
-    "                                                         \
-      number   : /-?[0-9]+/ ;                                 \
-      symbol   : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&^%]+/           \
-               |  \"list\" | \"head\" | \"tail\" | \"join\"   \
-               | \"eval\" | \"exit\" ; \
-      sexpr    : '(' <expr>* ')' ;                            \
-      qexpr    : '{' <expr>* '}' ;                            \
-      expr     : <number> | <symbol> | <sexpr> | <qexpr> ;    \
-      lispy    : /^/ <expr>* /$/ ;                            \
-    ",
-    Number, Symbol, Sexpr, Qexpr, Expr, Lispy
-  );
+  load_parser();
 
   puts("Lispy v0.0.1");
   puts("Press Ctrl+C to Exit\n");
