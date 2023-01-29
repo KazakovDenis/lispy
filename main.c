@@ -62,6 +62,6 @@ int main(int argc, char** argv) {
   }
   
   lenv_del(e);
-  mpc_cleanup(6, Number, Symbol, Sexpr, Qexpr, Expr, Lispy);
+  mpc_cleanup(8, Number, Symbol, String, Comment, Sexpr, Qexpr, Expr, Lispy);
   return 0;
 }
