@@ -6,6 +6,7 @@
 
 mpc_parser_t* Number;
 mpc_parser_t* Symbol;
+mpc_parser_t* String;
 mpc_parser_t* Sexpr;
 mpc_parser_t* Qexpr;
 mpc_parser_t* Expr;
@@ -16,23 +17,26 @@ void load_parser() {
     Number   = mpc_new("number");
     Symbol   = mpc_new("symbol");
     Sexpr    = mpc_new("sexpr");
+    String   = mpc_new("string");
     Qexpr    = mpc_new("qexpr");
     Expr     = mpc_new("expr");
     Lispy    = mpc_new("lispy");
 
     mpca_lang(
         MPCA_LANG_DEFAULT,
-        "                                                         \
+        "                                                           \
             number   : /-?[0-9]+/ ;                                 \
             symbol   : /[a-zA-Z0-9_+\\-*\\/\\\\=<>!&^%]+/           \
-                    |  \"list\" | \"head\" | \"tail\" | \"join\"   \
-                    | \"eval\" | \"exit\" ; \
+                     | \"list\" | \"head\" | \"tail\" | \"join\"    \
+                     | \"eval\" | \"exit\" ;                        \
+            string   : /\"(\\\\.|[^\"])*\"/ ;                       \
             sexpr    : '(' <expr>* ')' ;                            \
             qexpr    : '{' <expr>* '}' ;                            \
-            expr     : <number> | <symbol> | <sexpr> | <qexpr> ;    \
+            expr     : <number> | <symbol> | <string> | <sexpr>     \
+                     | <qexpr> ;                                    \
             lispy    : /^/ <expr>* /$/ ;                            \
         ",
-        Number, Symbol, Sexpr, Qexpr, Expr, Lispy
+        Number, Symbol, String, Sexpr, Qexpr, Expr, Lispy
     );
 }
 

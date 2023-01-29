@@ -1,7 +1,7 @@
 #ifndef LISPY_STRUCT_H
 #define LISPY_STRUCT_H
 
-enum ValTypes { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR, LVAL_EXIT };
+enum ValTypes { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR, LVAL_EXIT };
 
 struct lval;
 struct lenv;
@@ -21,6 +21,7 @@ struct lval {
   long num;
   char* err;
   char* sym;
+  char* str;
 
   /* Function */
   lbuiltin builtin;
@@ -47,6 +48,7 @@ char* ltype_name(int t) {
     case LVAL_NUM: return "Number";
     case LVAL_ERR: return "Error";
     case LVAL_SYM: return "Symbol";
+    case LVAL_STR: return "String";
     case LVAL_SEXPR: return "S-Expression";
     case LVAL_QEXPR: return "Q-Expression";
     default: return "Unknown";

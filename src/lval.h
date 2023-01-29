@@ -70,6 +70,15 @@ lval* lval_sym(char* s) {
 }
 
 
+lval* lval_str(char* s) {
+  lval* v = malloc(sizeof(lval));
+  v->type = LVAL_STR;
+  v->str = malloc(strlen(s) + 1);
+  strcpy(v->str, s);
+  return v;
+}
+
+
 lval* lval_sexpr(void) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_SEXPR;
@@ -117,11 +126,11 @@ void lenv_del(lenv* e);
 
 
 void lval_del(lval* v) {
-
   switch (v->type) {
     case LVAL_NUM: break;
     case LVAL_ERR: free(v->err); break;
     case LVAL_SYM: free(v->sym); break;
+    case LVAL_STR: free(v->str); break;
     case LVAL_QEXPR:
     case LVAL_SEXPR:
       for (int i = 0; i < v->count; i++) {
@@ -173,11 +182,18 @@ lval* lval_copy(lval* v) {
     /* Copy Strings using malloc and strcpy */
     case LVAL_ERR:
       x->err = malloc(strlen(v->err) + 1);
-      strcpy(x->err, v->err); break;
+      strcpy(x->err, v->err); 
+      break;
 
     case LVAL_SYM:
       x->sym = malloc(strlen(v->sym) + 1);
-      strcpy(x->sym, v->sym); break;
+      strcpy(x->sym, v->sym); 
+      break;
+
+    case LVAL_STR: 
+    x->str = malloc(strlen(v->str) + 1);
+      strcpy(x->str, v->str); 
+      break;
 
     /* Copy Lists by copying each sub-expression */
     case LVAL_SEXPR:
@@ -201,10 +217,26 @@ lval* lval_read_num(mpc_ast_t* t) {
 }
 
 
-lval* lval_read(mpc_ast_t* t) {
+lval* lval_read_str(mpc_ast_t* t) {
+  /* Cut off the final quote character */
+  t->contents[strlen(t->contents)-1] = '\0';
+  /* Copy the string missing out the first quote character */
+  char* unescaped = malloc(strlen(t->contents+1)+1);
+  strcpy(unescaped, t->contents+1);
+  /* Pass through the unescape function */
+  unescaped = mpcf_unescape(unescaped);
+  /* Construct a new lval using the string */
+  lval* str = lval_str(unescaped);
+  /* Free the string and return */
+  free(unescaped);
+  return str;
+}
 
+
+lval* lval_read(mpc_ast_t* t) {
   if (strstr(t->tag, "number")) { return lval_read_num(t); }
   if (strstr(t->tag, "symbol")) { return lval_sym(t->contents); }
+  if (strstr(t->tag, "string")) { return lval_read_str(t); }
 
   /* If root (>) or sexpr then create empty list */
   lval* x = NULL;
@@ -585,6 +617,7 @@ int lval_eq(lval* x, lval* y) {
     /* Compare String Values */
     case LVAL_ERR: return (strcmp(x->err, y->err) == 0);
     case LVAL_SYM: return (strcmp(x->sym, y->sym) == 0);
+    case LVAL_STR: return (strcmp(x->str, y->str) == 0);
 
     /* If builtin compare, otherwise compare formals and body */
     case LVAL_FUN:
