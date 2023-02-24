@@ -2,6 +2,7 @@
 #define LISPY_LVAL_H
 
 #include "parser.h"
+#include "print.h"
 #include "struct.h"
 
 
@@ -818,6 +819,75 @@ lval* builtin_if(lenv* e, lval* a) {
 }
 
 
+lval* builtin_load(lenv* e, lval* fval) {
+  LASSERT_COUNT("load", fval, 1);
+  LASSERT_TYPE("load", fval, 0, LVAL_STR);
+
+  /* Parse File given by string name */
+  mpc_result_t r;
+  if (mpc_parse_contents(fval->cell[0]->str, Lispy, &r)) {
+    /* Read contents */
+    lval* expr = lval_read(r.output);
+    mpc_ast_delete(r.output);
+
+    /* Evaluate each Expression */
+    while (expr->count) {
+      lval* x = lval_eval(e, lval_pop(expr, 0));
+
+      if (x->type == LVAL_ERR) 
+        lval_println(x);
+
+      lval_del(x);
+    }
+
+    /* Delete expressions and arguments */
+    lval_del(expr);
+    lval_del(fval);
+
+    /* Return empty list */
+    return lval_sexpr();
+
+  } else {
+    /* Get Parse Error as String */
+    char* err_msg = mpc_err_string(r.error);
+    mpc_err_delete(r.error);
+
+    /* Create new error message using it */
+    lval* err = lval_err("Could not load Library %s", err_msg);
+    free(err_msg);
+    lval_del(fval);
+
+    /* Cleanup and return error */
+    return err;
+  }
+}
+
+
+lval* builtin_print(lenv* e, lval* a) {
+  for (int i = 0; i < a->count; i++) {
+    lval_print(a->cell[i]); 
+    putchar(' ');
+  }
+
+  putchar('\n');
+  lval_del(a);
+  return lval_sexpr();
+}
+
+
+lval* builtin_error(lenv* e, lval* a) {
+  LASSERT_COUNT("error", a, 1);
+  LASSERT_TYPE("error", a, 0, LVAL_STR);
+
+  /* Construct Error from first argument */
+  lval* err = lval_err(a->cell[0]->str);
+
+  /* Delete arguments and return */
+  lval_del(a);
+  return err;
+}
+
+
 lval* builtin(lenv* e, lval* a, char* func) {
   if (strcmp("list", func) == 0) { return builtin_list(e, a); }
   if (strcmp("head", func) == 0) { return builtin_head(e, a); }
@@ -849,13 +919,14 @@ void lenv_add_builtin_exit(lenv* e) {
 }
 
 
-void add_lisp_func(lenv* e, char* fun) {
-  mpc_result_t r;
-  mpc_parse("<stdin>", fun, Lispy, &r);
+void load_file(lenv* e, char* filename) {
+  lval* fval = lval_add(lval_sexpr(), lval_str(filename));
+  lval* x = builtin_load(e, fval);
 
-  lval* v = lval_eval(e, lval_read(r.output));
-  lval_del(v);
-  mpc_ast_delete(r.output);   
+  if (x->type == LVAL_ERR)
+    lval_println(x);
+
+  lval_del(fval);
 }
 
 
@@ -892,10 +963,13 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "<", builtin_lt);
   lenv_add_builtin(e, "<=", builtin_le);
 
-  /* Lisp defined functions */
-  add_lisp_func(e, "def {func} (\\ {args body} {def (head args) (\\ (tail args) body)})");
-  add_lisp_func(e, "(func {len l} { if (== l {}) {0} {+ 1 (len (tail l))} })");
-  add_lisp_func(e, "(func {reverse l} { if (== l {}) {{}} {join (reverse (tail l)) (head l)} })");
+  /* String Functions */
+  lenv_add_builtin(e, "load",  builtin_load);
+  lenv_add_builtin(e, "error", builtin_error);
+  lenv_add_builtin(e, "print", builtin_print);
+
+  /* Standard library */
+  load_file(e, "src/stdlib/stdlib.lispy");
 }
 
 #endif

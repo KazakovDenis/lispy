@@ -1,18 +1,41 @@
 # Lispy
-Yet another Lisp.
+Yet another Lisp.  
+This is a pet project just to find out how programming languages work.
 
 # Devemopment
 ## Installation
-- `git clone --recurse-submodules https://github.com/KazakovDenis/lispy.git`
-- `sudo apt install make`
 - `make install`
   
 ## Getting started
 - `make run`
 
+## Use
+Check out `src/stdlib/stdlib.lispy` for basic definitions like:
+```lisp
+// define variables
+def {x y} {1 2}
+
+// arithmetic operations
++ x y
+/ x y
+
+// define functions
+(func {fib n} {
+  select
+    { (== n 0) 0 }
+    { (== n 1) 1 }
+    { otherwise (+ (fib (- n 1)) (fib (- n 2))) }
+})
+
+// call functions
+fib 5
+sum {1 2 3}
+
+```
+
 ## Troubleshooting
 Do not forget to include actual paths:
-```shell
+```json
 # .vscode/c_cpp_properties.json
 {
     "configurations": [
@@ -31,4 +54,5 @@ Do not forget to include actual paths:
 
 # Sources
 - [Build your own Lisp](https://buildyourownlisp.com/)
+- [Beej's Guide to C Programming](https://beej.us/guide/bgc/html/split/)
 - [Microsoft C reference](https://docs.microsoft.com/ru-ru/cpp/c-language/)
