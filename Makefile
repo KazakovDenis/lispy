@@ -13,7 +13,7 @@ $(OUT):
 	@$(CC) $(FLAGS) $(SOURCE) $(DEPS) -ledit -lm -o $(OUT)
 
 run: $(OUT)
-	./$(OUT)
+	@./$(OUT)
 
 clean:
 	rm -f $(OBJS) $(OUT)

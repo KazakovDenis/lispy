@@ -925,8 +925,6 @@ void load_file(lenv* e, char* filename) {
 
   if (x->type == LVAL_ERR)
     lval_println(x);
-
-  lval_del(fval);
 }
 
 
