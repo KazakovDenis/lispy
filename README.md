@@ -43,12 +43,21 @@ Do not forget to include actual paths:
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "${workspaceFolder}/mpc/**",
+                "${workspaceFolder}/include/**",
+                "${workspaceFolder}/src/**",
                 "/usr/include/**",
                 "/usr/include/x86_64-linux-gnu/**"
             ],
-            ...
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
+    "version": 4
 }
 ```
 
