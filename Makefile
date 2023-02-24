@@ -3,7 +3,8 @@ SOURCE	 = main.c
 DEPS     = mpc/mpc.c
 OUT      = lispy
 CC	     = gcc
-FLAGS	 = -g -std=c99 -Wall
+SANS     = address,undefined,leak,pointer-subtract
+FLAGS	 = -g -std=c99 -Wall -Wextra -Werror -fsanitize=$(SANS)
 
 install:
 	@sudo apt install libedit-dev

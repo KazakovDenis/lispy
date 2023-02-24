@@ -524,6 +524,9 @@ void lenv_def(lenv* e, lval* k, lval* v) {
 
 
 /* --- Builtins --- */
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_head(lenv* e, lval* a) {
   LASSERT_COUNT("head", a, 1);
   LASSERT_TYPE("head", a, 0, LVAL_QEXPR);
@@ -534,8 +537,12 @@ lval* builtin_head(lenv* e, lval* a) {
   while (v->count > 1) { lval_del(lval_pop(v, 1)); }
   return v;
 }
+#pragma GCC diagnostic pop
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_tail(lenv* e, lval* a) {
   LASSERT_COUNT("tail", a, 1);
   LASSERT_TYPE("tail", a, 0, LVAL_QEXPR);
@@ -546,14 +553,22 @@ lval* builtin_tail(lenv* e, lval* a) {
   lval_del(lval_pop(v, 0));
   return v;
 }
+#pragma GCC diagnostic pop
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_list(lenv* e, lval* a) {
   a->type = LVAL_QEXPR;
   return a;
 }
+#pragma GCC diagnostic pop
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_op(lenv* e, lval* a, char* op) {
 
   for (int i = 0; i < a->count; i++) {
@@ -597,6 +612,7 @@ lval* builtin_op(lenv* e, lval* a, char* op) {
   lval_del(a); 
   return x;
 }
+#pragma GCC diagnostic pop
 
 
 lval* builtin_add(lenv* e, lval* a) { return builtin_op(e, a, "+"); }
@@ -646,6 +662,9 @@ int lval_eq(lval* x, lval* y) {
 }
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_cmp(lenv* e, lval* a, char* op) {
   LASSERT_COUNT(op, a, 2);
   int r;
@@ -658,11 +677,16 @@ lval* builtin_cmp(lenv* e, lval* a, char* op) {
   lval_del(a);
   return lval_num(r);
 }
+#pragma GCC diagnostic pop
+
 
 lval* builtin_eq(lenv* e, lval* a) { return builtin_cmp(e, a, "=="); }
 lval* builtin_ne(lenv* e, lval* a) { return builtin_cmp(e, a, "!="); }
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_ord(lenv* e, lval* a, char* op) {
   LASSERT_COUNT(op, a, 2);
   LASSERT_TYPE(op, a, 0, LVAL_NUM);
@@ -684,6 +708,7 @@ lval* builtin_ord(lenv* e, lval* a, char* op) {
   lval_del(a);
   return lval_num(r);
 }
+#pragma GCC diagnostic pop
 
 
 lval* builtin_gt(lenv* e, lval* a) { return builtin_ord(e, a, ">"); }
@@ -702,6 +727,9 @@ lval* builtin_eval(lenv* e, lval* a) {
 }
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_join(lenv* e, lval* a) {
 
   for (int i = 0; i < a->count; i++) {
@@ -717,6 +745,7 @@ lval* builtin_join(lenv* e, lval* a) {
   lval_del(a);
   return x;
 }
+#pragma GCC diagnostic pop
 
 
 lval* builtin_var(lenv* e, lval* a, char* func) {
@@ -769,6 +798,9 @@ lval* builtin_put(lenv* e, lval* a) {
 }
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_lambda(lenv* e, lval* a) {
   /* Check Two arguments, each of which are Q-Expressions */
   LASSERT_COUNT("\\", a, 2);
@@ -792,6 +824,7 @@ lval* builtin_lambda(lenv* e, lval* a) {
 
   return lval_lambda(formals, body);
 }
+#pragma GCC diagnostic pop
 
 
 lval* builtin_if(lenv* e, lval* a) {
@@ -863,6 +896,9 @@ lval* builtin_load(lenv* e, lval* fval) {
 }
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_print(lenv* e, lval* a) {
   for (int i = 0; i < a->count; i++) {
     lval_print(a->cell[i]); 
@@ -873,8 +909,12 @@ lval* builtin_print(lenv* e, lval* a) {
   lval_del(a);
   return lval_sexpr();
 }
+#pragma GCC diagnostic pop
 
 
+/* Keep lenv for the uniformity of signature */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 lval* builtin_error(lenv* e, lval* a) {
   LASSERT_COUNT("error", a, 1);
   LASSERT_TYPE("error", a, 0, LVAL_STR);
@@ -886,6 +926,7 @@ lval* builtin_error(lenv* e, lval* a) {
   lval_del(a);
   return err;
 }
+#pragma GCC diagnostic pop
 
 
 lval* builtin(lenv* e, lval* a, char* func) {
