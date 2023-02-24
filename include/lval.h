@@ -5,6 +5,10 @@
 #include "print.h"
 #include "struct.h"
 
+static char *stdlib = 
+#include "../stdlib/stdlib.lispy"
+;
+
 
 #define LASSERT(args, cond, fmt, ...) \
   if (!(cond)) { lval* err = lval_err(fmt, ##__VA_ARGS__); lval_del(args); return err; }
@@ -971,6 +975,29 @@ void load_file(lenv* e, char* filename) {
 }
 
 
+void load_stdlib(lenv* e, char* content) {
+  mpc_result_t r;
+
+  if (mpc_parse("<stdin>", content, Lispy, &r)) {
+    lval* expr = lval_read(r.output);
+    mpc_ast_delete(r.output);
+
+    /* Evaluate each Expression */
+    while (expr->count) {
+      lval* x = lval_eval(e, lval_pop(expr, 0));
+
+      if (x->type == LVAL_ERR) 
+        lval_println(x);
+
+      lval_del(x);
+    }
+
+    /* Delete expressions and arguments */
+    lval_del(expr);
+  } 
+}
+
+
 void lenv_add_builtins(lenv* e) {
   /* System functions */
   lenv_add_builtin_exit(e);
@@ -1010,7 +1037,7 @@ void lenv_add_builtins(lenv* e) {
   lenv_add_builtin(e, "print", builtin_print);
 
   /* Standard library */
-  load_file(e, "src/stdlib/stdlib.lispy");
+  load_stdlib(e, stdlib);
 }
 
 #endif

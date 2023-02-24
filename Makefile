@@ -10,7 +10,7 @@ install:
 	@sudo apt install libedit-dev
 	@git pull --recurse-submodules
 
-$(OUT):
+$(OUT): clean
 	@$(CC) $(FLAGS) $(SOURCE) $(DEPS) -ledit -lm -o $(OUT)
 
 run: $(OUT)
