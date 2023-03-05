@@ -1,8 +1,6 @@
 #ifndef LISPY_STRUCT_H
 #define LISPY_STRUCT_H
 
-#include "mpc.h"
-
 
 enum ValTypes { 
   LVAL_ERR, 

@@ -1,4 +1,6 @@
 #include "lispy.h"
+#include "print.h"
+#include "struct.h"
 
 /* for Windows */
 #ifdef _WIN32
@@ -25,6 +27,7 @@ void add_history(char* unused) {}
 #include <editline/history.h>
 #endif
 
+
 mpc_parser_t* Number;
 mpc_parser_t* Symbol;
 mpc_parser_t* String;
@@ -36,6 +39,7 @@ mpc_parser_t* Lispy;
 
 
 void load_parser() {
+    Lispy    = mpc_new("lispy");
     Number   = mpc_new("number");
     Symbol   = mpc_new("symbol");
     Sexpr    = mpc_new("sexpr");
@@ -43,7 +47,6 @@ void load_parser() {
     Comment  = mpc_new("comment");
     Qexpr    = mpc_new("qexpr");
     Expr     = mpc_new("expr");
-    Lispy    = mpc_new("lispy");
 
     mpca_lang(
         MPCA_LANG_DEFAULT,

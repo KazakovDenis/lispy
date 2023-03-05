@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "mpc.h"
+
 #include "print.h"
+#include "struct.h"
 
 
 void lval_expr_print(lval* v, char open, char close) {
@@ -20,14 +23,10 @@ void lval_expr_print(lval* v, char open, char close) {
 
 
 void lval_print_str(lval* v) {
-  /* Make a Copy of the string */
   char* escaped = malloc(strlen(v->str)+1);
   strcpy(escaped, v->str);
-  /* Pass it through the escape function */
   escaped = mpcf_escape(escaped);
-  /* Print it between " characters */
   printf("\"%s\"", escaped);
-  /* free the copied string */
   free(escaped);
 }
 

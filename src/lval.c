@@ -7,7 +7,6 @@
 
 #include "lispy.h"
 #include "print.h"
-#include "struct.h"
 
 
 extern mpc_parser_t* Lispy;

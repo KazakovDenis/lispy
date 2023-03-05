@@ -3,7 +3,10 @@
 
 #include "mpc.h"
 
-#include "print.h"
+#include "struct.h"
+
+
+char* ltype_name(int t);
 
 
 #define LASSERT(args, cond, fmt, ...) \
@@ -23,8 +26,6 @@
   LASSERT(args, args->cell[index]->count != 0, \
     "Function '%s' passed {} for argument %i.", func, index);
 
-
-char* ltype_name(int t);
 
 lval* lval_num(long x);
 
