@@ -1,31 +1,30 @@
-#ifndef LISPY_LVAL_H
-#define LISPY_LVAL_H
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-#include "parser.h"
+#include "mpc.h"
+
+#include "lispy.h"
 #include "print.h"
 #include "struct.h"
 
-static char *stdlib = 
-#include "../stdlib/stdlib.lispy"
-;
+
+extern mpc_parser_t* Lispy;
 
 
-#define LASSERT(args, cond, fmt, ...) \
-  if (!(cond)) { lval* err = lval_err(fmt, ##__VA_ARGS__); lval_del(args); return err; }
-
-#define LASSERT_TYPE(func, args, index, expect) \
-  LASSERT(args, args->cell[index]->type == expect, \
-    "Function '%s' passed incorrect type for argument %i. Got %s, Expected %s.", \
-    func, index, ltype_name(args->cell[index]->type), ltype_name(expect))
-
-#define LASSERT_COUNT(func, args, num) \
-  LASSERT(args, args->count == num, \
-    "Function '%s' passed incorrect number of arguments. Got %i, Expected %i.", \
-    func, args->count, num)
-
-#define LASSERT_NOT_EMPTY(func, args, index) \
-  LASSERT(args, args->cell[index]->count != 0, \
-    "Function '%s' passed {} for argument %i.", func, index);
+char* ltype_name(int t) {
+  switch(t) {
+    case LVAL_FUN: return "Function";
+    case LVAL_NUM: return "Number";
+    case LVAL_ERR: return "Error";
+    case LVAL_SYM: return "Symbol";
+    case LVAL_STR: return "String";
+    case LVAL_SEXPR: return "S-Expression";
+    case LVAL_QEXPR: return "Q-Expression";
+    default: return "Unknown";
+  }
+}
 
 
 lenv* lenv_new(void) {
@@ -113,21 +112,12 @@ lval* lval_fun(lbuiltin func) {
 lval* lval_lambda(lval* formals, lval* body) {
   lval* v = malloc(sizeof(lval));
   v->type = LVAL_FUN;
-
-  /* Set Builtin to Null */
   v->builtin = NULL;
-
-  /* Build new environment */
   v->env = lenv_new();
-
-  /* Set Formals and Body */
   v->formals = formals;
   v->body = body;
   return v;
 }
-
-
-void lenv_del(lenv* e);
 
 
 void lval_del(lval* v) {
@@ -161,9 +151,6 @@ lval* lval_add(lval* v, lval* x) {
   v->cell[v->count-1] = x;
   return v;
 }
-
-
-lenv* lenv_copy(lenv* e);
 
 
 lval* lval_copy(lval* v) {
@@ -287,13 +274,6 @@ lval* lval_take(lval* v, int i) {
 }
 
 
-lval* lval_eval(lenv* e, lval* v);
-
-
-// Resolve lval_eval_sexpr dep
-lval* lval_call(lenv* e, lval* f, lval* a);
-
-
 lval* lval_eval_sexpr(lenv* e, lval* v) {
   for (int i = 0; i < v->count; i++) {
     v->cell[i] = lval_eval(e, v->cell[i]);
@@ -324,10 +304,6 @@ lval* lval_eval_sexpr(lenv* e, lval* v) {
 }
 
 
-// Resolve lval_eval dep
-lval* lenv_get(lenv* e, lval* k);
-
-
 lval* lval_eval(lenv* e, lval* v) {
   if (v->type == LVAL_SYM) {
     lval* x = lenv_get(e, v);
@@ -347,12 +323,6 @@ lval* lval_join(lval* x, lval* y) {
   lval_del(y);
   return x;
 }
-
-
-// Resolve lval_call dep
-void lenv_put(lenv* e, lval* k, lval* v);
-lval* builtin_eval(lenv* e, lval* a);
-lval* builtin_list(lenv* e, lval* a);
 
 
 lval* lval_call(lenv* e, lval* f, lval* a) {
@@ -998,6 +968,11 @@ void load_stdlib(lenv* e, char* content) {
 }
 
 
+static char *stdlib = 
+#include "../stdlib/stdlib.lispy"
+;
+
+
 void lenv_add_builtins(lenv* e) {
   /* System functions */
   lenv_add_builtin_exit(e);
@@ -1039,5 +1014,3 @@ void lenv_add_builtins(lenv* e) {
   /* Standard library */
   load_stdlib(e, stdlib);
 }
-
-#endif

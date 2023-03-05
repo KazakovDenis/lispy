@@ -1,7 +1,19 @@
 #ifndef LISPY_STRUCT_H
 #define LISPY_STRUCT_H
 
-enum ValTypes { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR, LVAL_EXIT };
+#include "mpc.h"
+
+
+enum ValTypes { 
+  LVAL_ERR, 
+  LVAL_NUM, 
+  LVAL_SYM, 
+  LVAL_STR, 
+  LVAL_FUN, 
+  LVAL_SEXPR, 
+  LVAL_QEXPR, 
+  LVAL_EXIT
+};
 
 struct lval;
 struct lenv;
@@ -40,8 +52,6 @@ struct lenv {
   char** syms;
   lval** vals;
 };
-
-char* ltype_name(int t);
 
 
 #endif

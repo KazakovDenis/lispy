@@ -23,7 +23,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(CC) -c $< $(FLAGS) -o $@
 
 $(OUT): $(OBJS)
-	$(CC) $< -o $@
+	$(CC) $(OBJS) $(FLAGS) -o $@
 
 run: $(OUT)
 	@./$<
